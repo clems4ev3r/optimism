@@ -15,7 +15,6 @@ import { IBridgeAdapter } from './bridge-adapter'
 export enum L1ChainID {
   MAINNET = 1,
   GOERLI = 5,
-  KOVAN = 42,
   HARDHAT_LOCAL = 31337,
   BEDROCK_LOCAL_DEVNET = 900,
 }
@@ -26,7 +25,6 @@ export enum L1ChainID {
 export enum L2ChainID {
   OPTIMISM = 10,
   OPTIMISM_GOERLI = 420,
-  OPTIMISM_KOVAN = 69,
   OPTIMISM_HARDHAT_LOCAL = 31337,
   OPTIMISM_HARDHAT_DEVNET = 17,
   OPTIMISM_BEDROCK_LOCAL_DEVNET = 901,
@@ -202,6 +200,12 @@ export interface CrossChainMessage extends CoreCrossChainMessage {
   blockNumber: number
   transactionHash: string
 }
+
+/**
+ * Describes messages sent inside the L2ToL1MessagePasser on L2. Happens to be the same structure
+ * as the CoreCrossChainMessage so we'll reuse the type for now.
+ */
+export type LowLevelMessage = CoreCrossChainMessage
 
 /**
  * Describes a token withdrawal or deposit, along with the underlying raw cross chain message
