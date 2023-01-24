@@ -2,21 +2,24 @@ module github.com/ethereum-optimism/optimism/op-e2e
 
 go 1.18
 
-replace github.com/ethereum-optimism/optimism/op-chain-ops v0.10.0 => ../op-chain-ops
+replace github.com/ethereum-optimism/optimism/op-batcher v0.10.4 => ./../op-batcher
+
+replace github.com/ethereum-optimism/optimism/op-proposer v0.10.4 => ./../op-proposer
 
 require (
 	github.com/docker/docker v20.10.21+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/ethereum-optimism/go-ethereum-hdwallet v0.1.3
-	github.com/ethereum-optimism/optimism/op-batcher v0.10.0
-	github.com/ethereum-optimism/optimism/op-bindings v0.10.0
-	github.com/ethereum-optimism/optimism/op-chain-ops v0.10.0
-	github.com/ethereum-optimism/optimism/op-node v0.10.0
-	github.com/ethereum-optimism/optimism/op-proposer v0.10.0
-	github.com/ethereum-optimism/optimism/op-service v0.10.0
+	github.com/ethereum-optimism/optimism/op-batcher v0.10.10
+	github.com/ethereum-optimism/optimism/op-bindings v0.10.10
+	github.com/ethereum-optimism/optimism/op-chain-ops v0.10.10
+	github.com/ethereum-optimism/optimism/op-node v0.10.10
+	github.com/ethereum-optimism/optimism/op-proposer v0.10.10
+	github.com/ethereum-optimism/optimism/op-service v0.10.10
 	github.com/ethereum/go-ethereum v1.10.26
+	github.com/google/gofuzz v1.2.1-0.20220503160820-4a35382e8fc8
 	github.com/libp2p/go-libp2p v0.23.3
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.1
 )
 
 require (
@@ -70,7 +73,6 @@ require (
 	github.com/influxdata/line-protocol v0.0.0-20210311194329-9aa0e372d097 // indirect
 	github.com/ipfs/go-cid v0.3.2 // indirect
 	github.com/ipfs/go-datastore v0.6.0 // indirect
-	github.com/ipfs/go-ds-leveldb v0.5.0 // indirect
 	github.com/ipfs/go-log v1.0.5 // indirect
 	github.com/ipfs/go-log/v2 v2.5.1 // indirect
 	github.com/jackpal/go-nat-pmp v1.0.2 // indirect
@@ -139,7 +141,7 @@ require (
 	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/status-im/keycard-go v0.0.0-20211109104530-b0e0482ba91d // indirect
-	github.com/stretchr/objx v0.4.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220614013038-64ee5596c38a // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/tklauser/numcpus v0.5.0 // indirect
@@ -169,4 +171,4 @@ require (
 	lukechampine.com/blake3 v1.1.7 // indirect
 )
 
-replace github.com/ethereum/go-ethereum v1.10.26 => github.com/ethereum-optimism/op-geth v0.0.0-20221104231810-30db39cae2be
+replace github.com/ethereum/go-ethereum v1.10.26 => github.com/ethereum-optimism/op-geth v0.0.0-20221216190603-60b51d600468

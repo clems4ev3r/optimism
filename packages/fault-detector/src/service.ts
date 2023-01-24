@@ -1,8 +1,10 @@
 import {
   BaseServiceV2,
+  StandardOptions,
   ExpressRouter,
   Gauge,
   validators,
+  waitForProvider,
 } from '@eth-optimism/common-ts'
 import { getChainId, sleep, toRpcHexString } from '@eth-optimism/core-utils'
 import { CrossChainMessenger } from '@eth-optimism/sdk'
@@ -14,6 +16,8 @@ import { version } from '../package.json'
 import {
   findFirstUnfinalizedStateBatchIndex,
   findEventForStateBatch,
+  updateStateBatchEventCache,
+  PartialEvent,
 } from './helpers'
 
 type Options = {
@@ -37,28 +41,29 @@ type State = {
 }
 
 export class FaultDetector extends BaseServiceV2<Options, Metrics, State> {
-  constructor(options?: Partial<Options>) {
+  constructor(options?: Partial<Options & StandardOptions>) {
     super({
       version,
       name: 'fault-detector',
       loop: true,
-      loopIntervalMs: 1000,
-      options,
+      options: {
+        loopIntervalMs: 1000,
+        ...options,
+      },
       optionsSpec: {
         l1RpcProvider: {
           validator: validators.provider,
           desc: 'Provider for interacting with L1',
-          secret: true,
         },
         l2RpcProvider: {
           validator: validators.provider,
           desc: 'Provider for interacting with L2',
-          secret: true,
         },
         startBatchIndex: {
           validator: validators.num,
           default: -1,
           desc: 'Batch index to start checking from',
+          public: true,
         },
       },
       metricsSpec: {
@@ -81,6 +86,18 @@ export class FaultDetector extends BaseServiceV2<Options, Metrics, State> {
   }
 
   async init(): Promise<void> {
+    // Connect to L1.
+    await waitForProvider(this.options.l1RpcProvider, {
+      logger: this.logger,
+      name: 'L1',
+    })
+
+    // Connect to L2.
+    await waitForProvider(this.options.l2RpcProvider, {
+      logger: this.logger,
+      name: 'L2',
+    })
+
     this.state.messenger = new CrossChainMessenger({
       l1SignerOrProvider: this.options.l1RpcProvider,
       l2SignerOrProvider: this.options.l2RpcProvider,
@@ -94,6 +111,10 @@ export class FaultDetector extends BaseServiceV2<Options, Metrics, State> {
     // We use this a lot, a bit cleaner to pull out to the top level of the state object.
     this.state.scc = this.state.messenger.contracts.l1.StateCommitmentChain
     this.state.fpw = (await this.state.scc.FRAUD_PROOF_WINDOW()).toNumber()
+
+    // Populate the event cache.
+    this.logger.info(`warming event cache, this might take a while...`)
+    await updateStateBatchEventCache(this.state.scc)
 
     // Figure out where to start syncing from.
     if (this.options.startBatchIndex === -1) {
@@ -165,7 +186,7 @@ export class FaultDetector extends BaseServiceV2<Options, Metrics, State> {
       latestIndex: latestBatchIndex,
     })
 
-    let event: ethers.Event
+    let event: PartialEvent
     try {
       event = await findEventForStateBatch(
         this.state.scc,
@@ -187,7 +208,9 @@ export class FaultDetector extends BaseServiceV2<Options, Metrics, State> {
 
     let batchTransaction: Transaction
     try {
-      batchTransaction = await event.getTransaction()
+      batchTransaction = await this.options.l1RpcProvider.getTransaction(
+        event.transactionHash
+      )
     } catch (err) {
       this.logger.error(`got error when connecting to node`, {
         error: err,
